@@ -9,10 +9,12 @@ def run_game():
 
     cells = create_cells(screen)
 
-    while True:
-        check_events(cells)
-        check_game_end(cells)
+    is_game_ended = False
+    while not is_game_ended:
+        check_events(cells, is_game_ended)
         pygame.display.flip()
+
+    print('Game has finished')
 
 try:
     run_game()

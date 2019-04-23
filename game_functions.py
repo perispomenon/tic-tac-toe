@@ -6,13 +6,15 @@ from turn import Turn
 # We start with crosses
 turn = Turn.CROSSES
 
-def check_events(cells):
+def check_events(cells, is_game_ended):
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
         if event.type == pygame.MOUSEBUTTONUP:
             on_cell_click(cells, (event.pos[0], event.pos[1]))
-            
+            if check_game_end(cells):
+                is_game_ended = True
+
 def create_cells(screen):
     # implying that the screen is a square
     size = screen.get_width() * 0.2
@@ -48,5 +50,35 @@ def on_cell_click(cells, event_pos):
             toggle_cell(cell)
 
 def check_game_end(cells):
-    for cell in cells:
-        
+    cells_list = list(map(lambda c: c, cells))
+    cells_signs = list(map(lambda c: c.sign, cells_list))
+    screen = cells_list[0].screen
+    line_color = (0, 0, 0)
+    for i in range(3):
+        # rows
+        if all(cells_signs[i::3]) and len(set(cells_signs[i::3])) == 1:
+            start_pos = cells_list[i].coords['left'], cells_list[i].coords['top'] + cells_list[i].coords['size'] / 2
+            end_pos = cells_list[i+6].coords['left'] + cells_list[i+6].coords['size'], cells_list[i+6].coords['top'] + cells_list[i+6].coords['size'] / 2
+            pygame.draw.line(screen, line_color, start_pos, end_pos)
+            return cells_list[i].sign
+        # cols
+        elif all(cells_signs[i:i+3]) and len(set(cells_signs[i:i+3])) == 1:
+            start_pos = cells_list[i].coords['left'] + cells_list[i].coords['size'] / 2, cells_list[i].coords['top']
+            end_pos = cells_list[i+3].coords['left'] + cells_list[i+3].coords['size'] / 2, cells_list[i+3].coords['top'] + cells_list[i+3].coords['size']
+            pygame.draw.line(screen, line_color, start_pos, end_pos)
+            return cells_list[i].sign
+
+    # main diag
+    if all(cells_signs[::4]) and len(set(cells_signs[::4])) == 1:
+        start_pos = cells_list[0].coords['left'], cells_list[0].coords['top']
+        end_pos = cells_list[8].coords['left'] + cells_list[8].coords['size'], cells_list[8].coords['top'] + cells_list[8].coords['size']
+        pygame.draw.line(screen, line_color, start_pos, end_pos)
+        return cells_list[i].sign
+    # other diag
+    elif all(cells_signs[::2]) and len(set(cells_list[::2])) == 1:
+        start_pos = cells_list[6].coords['left'] + cells_list[6].coords['size'], cells_list[6].coords['top']
+        end_pos = cells_list[2].coords['left'], cells_list[2].coords['top'] + cells_list[2].coords['size']
+        pygame.draw.line(screen, line_color, start_pos, end_pos)
+        return cells_list[i].sign
+
+    return False
