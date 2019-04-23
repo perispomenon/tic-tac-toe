@@ -7,9 +7,15 @@ def run_game():
     screen = pygame.display.set_mode(size)
     pygame.display.set_caption('Tic-Tac-Toe')
 
+    cells = create_cells(screen)
+
     while True:
-        check_events()
+        check_events(cells)
+        check_game_end(cells)
         pygame.display.flip()
 
-
-run_game()
+try:
+    run_game()
+except Exception as e:
+    print(e)
+    sys.exit()
